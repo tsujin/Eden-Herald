@@ -1,5 +1,6 @@
 from discord.ext import commands, tasks
 from discord.ext.commands import Context
+from helpers import db_manager
 import aiohttp
 import datetime
 
@@ -19,7 +20,8 @@ class PveHerald(commands.Cog):
                     return data
                 else:
                     print("Could not fetch data")
-    def parse_boss_kills(self):
+
+    async def parse_boss_kills(self):
         boss_kill_timer_map = {}
         for boss in self.data:
             last_killed_time = datetime.datetime.strptime(boss['killed_at'], '%Y-%m-%dT%H:%M:%S.%fZ')
@@ -31,5 +33,9 @@ class PveHerald(commands.Cog):
         return boss_kill_timer_map
 
     @tasks.loop(minutes=5.0)
-    def report_boss_kills(self):
+    async def report_boss_kills(self):
         pass
+
+
+async def setup(bot):
+    await bot.add_cog(PveHerald(bot))
