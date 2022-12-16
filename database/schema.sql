@@ -14,7 +14,7 @@ CREATE TABLE IF NOT EXISTS `warns` (
 
 CREATE TABLE IF NOT EXISTS `channels` (
     `server_id` varchar(20) NOT NULL,
-    `channel_id` int(20) NOT NULL,
+    `channel_id` varchar(20) NOT NULL,
     CONSTRAINT channels_pk PRIMARY KEY (server_id)
 );
 

@@ -9,9 +9,9 @@ Version: 5.4
 import aiosqlite
 
 
-async def add_channel(server_id: str, channel_id: int):
+async def add_channel(server_id: int, channel_id: int):
     async with aiosqlite.connect("database/database.db") as db:
-        await db.execute("INSERT INTO channels(server_id, channel_id) VALUES (?)", (server_id,channel_id))
+        await db.execute("INSERT INTO channels(server_id, channel_id) VALUES (?, ?)", (server_id,channel_id))
         await db.commit()
         rows = await db.execute("SELECT COUNT(*) FROM channels")
         async with rows as cursor:
@@ -19,9 +19,9 @@ async def add_channel(server_id: str, channel_id: int):
             return result[0] if result is not None else 0
 
 
-async def update_channel(server_id: str, channel_id: int):
+async def update_channel(server_id: int, channel_id: int):
     async with aiosqlite.connect("database/database.db") as db:
-        await db.execute("UPDATE channels SET channel_id = ? WHERE server_id = ?", (channel_id, server_id))
+        await db.execute("UPDATE channels SET channel_id=? WHERE server_id=?", (channel_id, server_id))
         await db.commit()
         rows = await db.execute("SELECT COUNT(*) FROM channels")
         async with rows as cursor:
@@ -29,9 +29,9 @@ async def update_channel(server_id: str, channel_id: int):
             return result[0] if result is not None else 0
 
 
-async def get_channel(server_id: str):
+async def get_channel(server_id: int):
     async with aiosqlite.connect("database/database.db") as db:
-        rows = await db.execute("SELECT channel_id FROM channels WHERE server_id = ?", server_id)
+        rows = await db.execute("SELECT channel_id FROM channels WHERE server_id=?", (server_id,))
         async with rows as cursor:
             result = await cursor.fetchone()
 
