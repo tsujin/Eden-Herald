@@ -1,20 +1,24 @@
 from discord.ext import commands, tasks
 from discord.ext.commands import Context
-import requests
+import aiohttp
 import datetime
 
 class PveHerald(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.data = self.fetch_data()
+        self.boss_kill_times = self.parse_boss_kills()
 
-    def fetch_data(self):
+    async def fetch_data(self):
         # required to receive json response
         headers = {'x-herald-api': 'minified'}
-        response = requests.get('https://eden-daoc.net/hrald/proxy.php?pve', headers=headers)
-
-        return response.json()
-
+        async with aiohttp.ClientSession(headers=headers) as session:
+            async with session.get('https://eden-daoc.net/hrald/proxy.php?pve') as request:
+                if request.status == 200:
+                    data = await request.json()
+                    return data
+                else:
+                    print("Could not fetch data")
     def parse_boss_kills(self):
         boss_kill_timer_map = {}
         for boss in self.data:
@@ -25,3 +29,7 @@ class PveHerald(commands.Cog):
                 print("Found weird data")
 
         return boss_kill_timer_map
+
+    @tasks.loop(minutes=5.0)
+    def report_boss_kills(self):
+        pass
