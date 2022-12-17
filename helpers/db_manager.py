@@ -52,12 +52,23 @@ async def add_boss_kill(boss_data):
 async def update_boss_kill(boss_data):
     boss_name, last_killed = boss_data
     async with aiosqlite.connect("database/database.db") as db:
-        await db.execute("UPDATE SET last_killed = ? WHERE boss_name = ?", (last_killed, boss_name))
+        await db.execute("UPDATE boss_kills SET last_killed = ? WHERE boss_name = ?", (last_killed, boss_name))
         await db.commit()
         rows = await db.execute("SELECT COUNT(*) FROM boss_kills")
         async with rows as cursor:
             result = await cursor.fetchone()
             return result[0] if result else 0
+
+
+async def get_boss_data():
+    async with aiosqlite.connect("database/database.db") as db:
+        rows = await db.execute("SELECT * FROM boss_kills")
+        async with rows as cursor:
+            result = await cursor.fetchall()
+            result_list = []
+            for row in result:
+                result_list.append(row)
+            return result_list
 
 
 async def is_blacklisted(user_id: int) -> bool:
