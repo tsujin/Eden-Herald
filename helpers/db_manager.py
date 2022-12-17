@@ -35,13 +35,12 @@ async def get_channel(server_id: int):
         async with rows as cursor:
             result = await cursor.fetchone()
 
-        return result
+        return result[0] if result else None
 
 
-async def add_boss_kill(boss_data):
-    boss_name, last_killed = boss_data
+async def add_boss_kill(boss_name, killed_at):
     async with aiosqlite.connect("database/database.db") as db:
-        await db.execute("INSERT INTO boss_kills(boss_name, last_kiled) VALUES (?, ?)", (boss_name, last_killed))
+        await db.execute("INSERT INTO boss_kills(boss_name, last_killed) VALUES (?, ?)", (boss_name, killed_at))
         await db.commit()
         rows = await db.execute("SELECT COUNT(*) FROM boss_kills")
         async with rows as cursor:
@@ -49,10 +48,9 @@ async def add_boss_kill(boss_data):
             return result[0] if result else 0
 
 
-async def update_boss_kill(boss_data):
-    boss_name, last_killed = boss_data
+async def update_boss_kill(boss_name, killed_at):
     async with aiosqlite.connect("database/database.db") as db:
-        await db.execute("UPDATE boss_kills SET last_killed = ? WHERE boss_name = ?", (last_killed, boss_name))
+        await db.execute("UPDATE boss_kills SET last_killed = ? WHERE boss_name = ?", (killed_at, boss_name))
         await db.commit()
         rows = await db.execute("SELECT COUNT(*) FROM boss_kills")
         async with rows as cursor:
